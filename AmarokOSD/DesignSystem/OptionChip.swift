@@ -30,7 +30,7 @@ struct OptionChip: View {
             .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
             .liquidGlass(
                 cornerRadius: 12,
-                tint: isSelected ? Color.accentColor.opacity(0.16) : nil,
+                tint: isSelected ? AppTheme.selectionTint : nil,
                 interactive: true,
                 fallback: AnyShapeStyle(Color.primary.opacity(0.035))
             )
@@ -38,6 +38,8 @@ struct OptionChip: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(title))
+        .accessibilityValue(Text(subtitle ?? ""))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .help(title)
     }
 }

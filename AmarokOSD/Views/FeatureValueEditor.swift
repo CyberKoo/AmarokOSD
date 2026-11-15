@@ -38,6 +38,7 @@ struct FeatureValueEditor: View {
                         .liquidGlassButtonStyle(prominent: true)
                         .controlSize(.large)
                         .disabled(!canApply)
+                        .accessibilityIdentifier("feature-apply")
                 }
             }
         }
@@ -73,19 +74,26 @@ struct FeatureValueEditor: View {
         return feature.canWrite(namedDraft, for: value)
     }
 
-    @ViewBuilder
     private var status: some View {
-        if isWriting {
-            WriteProgress(isWriting: true)
-        } else if isReading {
-            Label("正在读取", systemImage: "arrow.clockwise")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        } else {
-            Label("已回读", systemImage: "checkmark.circle.fill")
-                .font(.caption)
-                .foregroundStyle(.green)
+        Group {
+            if isWriting {
+                WriteProgress(isWriting: true)
+            } else if isReading {
+                Label("正在读取", systemImage: "arrow.clockwise")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Label("已读取", systemImage: "checkmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+            }
         }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .liquidGlass(
+            cornerRadius: 12,
+            tint: !isWriting && !isReading ? Color.green.opacity(0.12) : nil
+        )
     }
 
     private func synchronize() {

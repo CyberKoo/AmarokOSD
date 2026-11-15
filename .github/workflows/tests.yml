@@ -1,0 +1,57 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: xcode-27
+    timeout-minutes: 25
+
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Keep the runner awake
+        run: caffeinate -d &
+
+      - name: Run all tests
+        run: |
+          xcodebuild \
+            -project AmarokOSD.xcodeproj \
+            -scheme AmarokOSD \
+            -configuration Debug \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            -destination 'platform=macOS,arch=arm64' \
+            -resultBundlePath "$RUNNER_TEMP/AllTests.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Export UI screenshots
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/UIAttachments"
+          xcrun xcresulttool export attachments \
+            --path "$RUNNER_TEMP/AllTests.xcresult" \
+            --output-path "$RUNNER_TEMP/UIAttachments"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: all-test-results
+          path: |
+            ${{ runner.temp }}/UIAttachments
+            ${{ runner.temp }}/AllTests.xcresult
+          retention-days: 7

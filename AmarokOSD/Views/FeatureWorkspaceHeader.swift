@@ -1,90 +1,288 @@
+import AppKit
 import SwiftUI
 
-enum FeatureWorkspaceHeaderLayout {
-    private static let compactDetailWidth = 870.0
-    private static let regularDetailWidth = 890.0
+/// Fits the category strip and the search control into the toolbar header.
+///
+/// The header is a toolbar principal item, so it is rendered at its ideal
+/// width: asking for more room than the toolbar allocated makes the whole
+/// item disappear into the titlebar overflow menu. The layout therefore has
+/// to be resolved from the measured width before the view is built.
+struct FeatureWorkspaceHeaderLayout: Equatable {
+    /// Spacing between category buttons, mirroring `FeatureCategoryTabBar`.
+    static let tabSpacing = 5.0
+    /// Horizontal padding on each side of a category button.
+    static let categoryHorizontalInset = 12.0
+    /// Horizontal padding around the category strip (4 on each side).
+    static let tabStripPadding = 8.0
+    /// The "…" button plus the spacing that separates it from the tabs.
+    static let overflowMenuWidth = 40.0
+    /// Width of the "…" button itself.
+    static let overflowMenuButtonWidth = 28.0
+    static let compactSpacing = 12.0
+    static let searchFieldWidth = 200.0
+    static let searchButtonWidth = 40.0
+    static let contentSpacing = 20.0
+    /// Fallback used until a category has been measured.
+    static let unmeasuredCategoryWidth = 88.0
 
-    case regular
-    case compact
+    let visibleCount: Int
+    let showsSearchField: Bool
+    let isCompact: Bool
 
-    var usesCompactLayout: Bool {
-        self == .compact
-    }
-
-    mutating func update(detailWidth: Double) {
-        switch self {
-        case .regular where detailWidth < Self.compactDetailWidth:
-            self = .compact
-        case .compact where detailWidth >= Self.regularDetailWidth:
-            self = .regular
-        default:
-            break
+    static func resolve(
+        availableWidth: Double,
+        categories: [FeatureCategory],
+        widths: [FeatureCategory: Double]
+    ) -> FeatureWorkspaceHeaderLayout {
+        guard !categories.isEmpty else {
+            return FeatureWorkspaceHeaderLayout(visibleCount: 0, showsSearchField: false, isCompact: false)
         }
+
+        // The width is not known until the first layout pass; keep every
+        // category visible for that frame instead of collapsing the strip.
+        guard availableWidth > 0 else {
+            return FeatureWorkspaceHeaderLayout(
+                visibleCount: categories.count,
+                showsSearchField: false,
+                isCompact: false
+            )
+        }
+
+        func width(of category: FeatureCategory) -> Double {
+            widths[category] ?? unmeasuredCategoryWidth
+        }
+
+        func tabStripWidth(for count: Int) -> Double {
+            guard count > 0 else { return 0 }
+            let content = categories.prefix(count).reduce(0.0) { $0 + width(of: $1) }
+            return content + tabSpacing * Double(count - 1) + tabStripPadding
+        }
+
+        let allTabsWidth = tabStripWidth(for: categories.count)
+
+        if allTabsWidth + contentSpacing + searchFieldWidth <= availableWidth {
+            return FeatureWorkspaceHeaderLayout(
+                visibleCount: categories.count,
+                showsSearchField: true,
+                isCompact: false
+            )
+        }
+
+        if allTabsWidth + contentSpacing + searchButtonWidth <= availableWidth {
+            return FeatureWorkspaceHeaderLayout(
+                visibleCount: categories.count,
+                showsSearchField: false,
+                isCompact: false
+            )
+        }
+
+        let tabBudget = availableWidth - contentSpacing - searchButtonWidth - overflowMenuWidth
+        var fittingCount = 0
+        for count in 1...categories.count where tabStripWidth(for: count) <= tabBudget {
+            fittingCount = count
+        }
+
+        if fittingCount > 0 {
+            return FeatureWorkspaceHeaderLayout(
+                visibleCount: fittingCount,
+                showsSearchField: false,
+                isCompact: false
+            )
+        }
+
+        return FeatureWorkspaceHeaderLayout(visibleCount: 0, showsSearchField: false, isCompact: true)
     }
 }
 
 struct FeatureWorkspaceHeader: View {
+    /// Space the titlebar reserves on both sides of the principal item,
+    /// measured on macOS 26: a header wider than `windowWidth - 460` is
+    /// moved into the toolbar overflow menu. With the detail column at
+    /// `windowWidth - 230`, that leaves `detailWidth - 230` usable.
+    private static let toolbarChromeWidth = 230.0
+    /// Keeps rounding differences from pushing the header over the limit.
+    private static let fitSafetyMargin = 8.0
+    /// Room reserved for the "关闭" button next to the expanded search field.
+    private static let searchCloseButtonReserve = 84.0
+
     let categories: [FeatureCategory]
     @Binding var selectedCategory: FeatureCategory
     @Binding var searchText: String
-    /// Uses the compact layout in narrow windows to keep toolbar controls out of the overflow menu.
-    let usesCompactLayout: Bool
+    let onSelectCategory: (FeatureCategory) -> Void
+    let detailWidth: Double
+    @State private var isSearchExpanded = false
+    @State private var categoryWidths: [FeatureCategory: Double]
+
+    init(
+        categories: [FeatureCategory],
+        selectedCategory: Binding<FeatureCategory>,
+        searchText: Binding<String>,
+        onSelectCategory: @escaping (FeatureCategory) -> Void,
+        detailWidth: Double
+    ) {
+        self.categories = categories
+        _selectedCategory = selectedCategory
+        _searchText = searchText
+        self.onSelectCategory = onSelectCategory
+        self.detailWidth = detailWidth
+        _categoryWidths = State(initialValue: Self.measureWidths(for: categories))
+    }
+
+    private static func measureWidths(for categories: [FeatureCategory]) -> [FeatureCategory: Double] {
+        let font = NSFont.preferredFont(forTextStyle: .callout)
+        return Dictionary(uniqueKeysWithValues: categories.map { category in
+            let textWidth = (category.title as NSString).size(withAttributes: [.font: font]).width
+            return (category, textWidth + FeatureWorkspaceHeaderLayout.categoryHorizontalInset * 2)
+        })
+    }
+
+    private var availableWidth: Double {
+        max(0, detailWidth - Self.toolbarChromeWidth - Self.fitSafetyMargin)
+    }
+
+    private var layout: FeatureWorkspaceHeaderLayout {
+        FeatureWorkspaceHeaderLayout.resolve(
+            availableWidth: availableWidth,
+            categories: categories,
+            widths: categoryWidths
+        )
+    }
+
+    private var visibleCategories: [FeatureCategory] {
+        Array(categories.prefix(layout.visibleCount))
+    }
+
+    private var hiddenCategories: [FeatureCategory] {
+        Array(categories.dropFirst(layout.visibleCount))
+    }
 
     var body: some View {
-        if usesCompactLayout {
+        content
+            .onAppear(perform: measureCategories)
+            .onChange(of: categories) { _, _ in measureCategories() }
+            .onChange(of: layout.showsSearchField) { _, showsSearchField in
+                if showsSearchField {
+                    isSearchExpanded = false
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if isSearchExpanded && !layout.showsSearchField {
+            expandedSearchLayout
+        } else if layout.isCompact {
             compactLayout
         } else {
-            regularLayout
+            tabLayout
         }
     }
 
-    private var regularLayout: some View {
-        HStack(spacing: 12) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                FeatureCategoryTabBar(categories: categories, selection: $selectedCategory)
-                    .fixedSize(horizontal: true, vertical: false)
+    private var tabLayout: some View {
+        HStack(spacing: FeatureWorkspaceHeaderLayout.contentSpacing) {
+            tabStrip
+            if layout.showsSearchField {
+                FeatureSearchField(text: $searchText)
+                    .frame(width: FeatureWorkspaceHeaderLayout.searchFieldWidth)
+            } else {
+                compactSearchButton
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            FeatureSearchField(text: $searchText)
-                .frame(width: 200)
         }
+    }
+
+    private var tabStrip: some View {
+        HStack(spacing: FeatureWorkspaceHeaderLayout.tabSpacing) {
+            FeatureCategoryTabBar(
+                categories: visibleCategories,
+                selection: $selectedCategory,
+                onSelect: selectCategory
+            )
+            .fixedSize(horizontal: true, vertical: false)
+            .padding(4)
+            if !hiddenCategories.isEmpty {
+                moreMenu(categories: hiddenCategories)
+            }
+        }
+        .frame(height: 40)
+        .clipShape(Capsule())
+        .liquidGlass(cornerRadius: 20, fallback: AnyShapeStyle(.quaternary.opacity(0.5)))
     }
 
     private var compactLayout: some View {
-        HStack(spacing: 10) {
-            categoryMenu
-            FeatureSearchField(text: $searchText)
-                .frame(width: 170)
+        HStack(spacing: FeatureWorkspaceHeaderLayout.compactSpacing) {
+            moreMenu(categories: categories)
+                .frame(height: 40)
+                .liquidGlass(
+                    cornerRadius: 20,
+                    interactive: true,
+                    fallback: AnyShapeStyle(.quaternary.opacity(0.5))
+                )
+            compactSearchButton
         }
     }
 
-    private var categoryMenu: some View {
+    private var expandedSearchLayout: some View {
+        HStack(spacing: FeatureWorkspaceHeaderLayout.compactSpacing) {
+            FeatureSearchField(text: $searchText)
+                .frame(maxWidth: min(320, max(120, availableWidth - Self.searchCloseButtonReserve)))
+            Button("关闭") {
+                isSearchExpanded = false
+            }
+            .liquidGlassButtonStyle()
+            .accessibilityIdentifier("feature-search-close")
+        }
+    }
+
+    private var compactSearchButton: some View {
+        Button {
+            isSearchExpanded = true
+        } label: {
+            Image(systemName: "magnifyingglass")
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .liquidGlass(
+                    cornerRadius: 20,
+                    tint: searchText.isEmpty ? nil : AppTheme.selectionTint,
+                    interactive: true,
+                    fallback: AnyShapeStyle(.quaternary.opacity(0.5))
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("搜索功能")
+        .accessibilityIdentifier("feature-search-button")
+        .help(searchText.isEmpty ? "搜索功能" : "编辑当前搜索")
+    }
+
+    private func moreMenu(categories: [FeatureCategory]) -> some View {
         Menu {
             ForEach(categories) { category in
                 Button {
-                    selectedCategory = category
+                    selectCategory(category)
                 } label: {
                     Label(category.title, systemImage: category.iconName)
                 }
             }
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: selectedCategory.iconName)
-                Text(selectedCategory.title)
-                    .font(.callout.weight(.medium))
-            }
-            .padding(.horizontal, 11)
-            .padding(.vertical, 8)
-            .liquidGlass(
-                cornerRadius: 12,
-                tint: Color.accentColor.opacity(0.10),
-                interactive: true,
-                fallback: AnyShapeStyle(.quaternary.opacity(0.5))
-            )
-            .fixedSize()
+            Image(systemName: "ellipsis")
+                .font(.callout.weight(.medium))
+                .frame(width: FeatureWorkspaceHeaderLayout.overflowMenuButtonWidth, height: 32)
+                .contentShape(.rect(cornerRadius: 12))
         }
+        .menuIndicator(.hidden)
         .menuStyle(.borderlessButton)
         .fixedSize()
-        .accessibilityLabel(Text("显示类别：\(selectedCategory.title)"))
+        .accessibilityLabel("更多分类")
+        .accessibilityIdentifier("category-more")
+    }
+
+    private func selectCategory(_ category: FeatureCategory) {
+        isSearchExpanded = false
+        onSelectCategory(category)
+    }
+
+    private func measureCategories() {
+        let widths = Self.measureWidths(for: categories)
+        guard widths != categoryWidths else { return }
+        categoryWidths = widths
     }
 }

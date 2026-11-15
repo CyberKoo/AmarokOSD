@@ -11,7 +11,7 @@ struct DisplayDetails: View {
                     .font(.title3)
                     .foregroundStyle(.green)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("DDC/CI 已连接")
+                    Text("已连接")
                         .font(.callout.weight(.medium))
                     Text(display.name)
                         .font(.caption)
@@ -25,6 +25,7 @@ struct DisplayDetails: View {
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
                 .accessibilityLabel(Text("显示器信息"))
+                .accessibilityIdentifier("display-info")
             }
         }
         .padding(4)
@@ -38,7 +39,7 @@ struct DisplayDetails: View {
                 DisplayDetailLine(label: "位置", value: display.location)
             }
             .padding(18)
-            .frame(width: 340)
+            .frame(width: 300, alignment: .leading)
         }
     }
 }

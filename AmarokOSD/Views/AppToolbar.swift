@@ -5,10 +5,10 @@ struct AppToolbar: ToolbarContent {
     @ObservedObject var displays: DisplayStore
     @ObservedObject var catalog: FeatureCatalogStore
     @ObservedObject var featureStates: FeatureStateStore
-    let usesCompactHeader: Bool
+    let detailWidth: Double
 
-    init(model: AppModel, usesCompactHeader: Bool) {
-        self.usesCompactHeader = usesCompactHeader
+    init(model: AppModel, detailWidth: Double) {
+        self.detailWidth = detailWidth
         self.model = model
         displays = model.displayStore
         catalog = model.catalogStore
@@ -19,25 +19,56 @@ struct AppToolbar: ToolbarContent {
         catalog.visibleCategories(using: featureStates)
     }
 
+    private var searchText: Binding<String> {
+        Binding(
+            get: { catalog.searchText },
+            set: { catalog.updateSearchText($0) }
+        )
+    }
+
+    private var featureWorkspaceHeader: some View {
+        FeatureWorkspaceHeader(
+            categories: populatedCategories,
+            selectedCategory: $catalog.selectedCategory,
+            searchText: searchText,
+            onSelectCategory: catalog.selectCategory,
+            detailWidth: detailWidth
+        )
+    }
+
     var body: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            FeatureWorkspaceHeader(
-                categories: populatedCategories,
-                selectedCategory: $catalog.selectedCategory,
-                searchText: $catalog.searchText,
-                usesCompactLayout: usesCompactHeader
-            )
-            .frame(maxWidth: .infinity)
-        }
-        ToolbarItemGroup(placement: .primaryAction) {
-            if featureStates.isProbing {
-                Button("取消探测", systemImage: "stop.circle", action: model.cancelProbe)
+        if !populatedCategories.isEmpty {
+            if #available(macOS 26.1, *) {
+                ToolbarItem(placement: .principal) {
+                    featureWorkspaceHeader
+                }
+                .sharedBackgroundVisibility(.hidden)
+                .visibilityPriority(.high)
             } else {
-                Button("探测全部", systemImage: "wand.and.rays", action: model.probeAllFeatures)
-                    .disabled(displays.selectedDisplay == nil || displays.isRefreshing)
+                ToolbarItem(placement: .principal) {
+                    featureWorkspaceHeader
+                }
             }
-            Button("刷新", systemImage: "arrow.clockwise", action: model.refreshDisplays)
-                .disabled(displays.isRefreshing)
+        }
+        if #available(macOS 26.1, *) {
+            ToolbarItemGroup(placement: .primaryAction) {
+                if featureStates.isProbing {
+                    Button("取消探测", systemImage: "stop.circle", action: model.cancelProbe)
+                } else {
+                    Button("探测全部", systemImage: "wand.and.rays", action: model.probeAllFeatures)
+                        .disabled(displays.selectedDisplay == nil || displays.isRefreshing)
+                }
+            }
+            .visibilityPriority(.low)
+        } else {
+            ToolbarItemGroup(placement: .primaryAction) {
+                if featureStates.isProbing {
+                    Button("取消探测", systemImage: "stop.circle", action: model.cancelProbe)
+                } else {
+                    Button("探测全部", systemImage: "wand.and.rays", action: model.probeAllFeatures)
+                        .disabled(displays.selectedDisplay == nil || displays.isRefreshing)
+                }
+            }
         }
     }
 }

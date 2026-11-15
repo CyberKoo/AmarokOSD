@@ -7,6 +7,7 @@ struct FeatureMasterDetailView: View {
     let features: [AgonFeature]
     @ObservedObject var catalog: FeatureCatalogStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var availableWidth: Double = 0
 
     init(model: AppModel, title: String, subtitle: String, features: [AgonFeature]) {
         self.model = model
@@ -24,71 +25,108 @@ struct FeatureMasterDetailView: View {
         reduceMotion ? nil : .easeOut(duration: 0.14)
     }
 
+    private var usesStackedLayout: Bool {
+        availableWidth > 0 && availableWidth < 640
+    }
+
+    private var listWidth: Double {
+        availableWidth < 760 ? 240 : 302
+    }
+
     var body: some View {
-        HStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 0) {
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack {
-                        Text(title)
-                            .font(.title2.bold())
-                        Spacer()
-                        Text("\(features.count)")
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
-                    Text(subtitle)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+        Group {
+            if usesStackedLayout {
+                VStack(spacing: 16) {
+                    featureList
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 220)
+                    detail
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 18)
-                .padding(.bottom, 15)
-
-                Divider()
-                    .opacity(0.35)
-
-                ScrollView {
-                    LazyVStack(spacing: 4) {
-                        ForEach(features) { feature in
-                            FeatureListRow(
-                                feature: feature,
-                                store: model.featureStore,
-                                isSelected: feature.name == selectedFeature?.name,
-                                action: { model.selectFeature(feature.name) }
-                            )
-                        }
-                    }
-                    .padding(8)
+            } else {
+                HStack(spacing: 20) {
+                    featureList
+                        .frame(width: listWidth)
+                    detail
                 }
-                .id(title)
-                .transition(.opacity)
             }
-            .frame(width: 302)
-            .frame(maxHeight: .infinity)
-            .liquidGlass(cornerRadius: AppTheme.cardRadius)
-            .animation(transitionAnimation, value: title)
+        }
+        .padding(20)
+        .background(WidthReader { availableWidth = $0 })
+        .onAppear(perform: synchronizeSelection)
+        .onChange(of: features) { _, _ in synchronizeSelection() }
+    }
 
-            Group {
-                if let selectedFeature {
-                    FeatureDetailContainer(model: model, feature: selectedFeature)
-                        .id(selectedFeature.name)
-                        .transition(.opacity)
-                } else {
+    private var featureList: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 7) {
+                HStack {
+                    Text(title)
+                        .font(.title2.bold())
+                    Spacer()
+                    Text("\(features.count)")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                Text(subtitle)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 18)
+            .padding(.top, 18)
+            .padding(.bottom, 15)
+
+            Divider()
+                .opacity(0.35)
+
+            ScrollView {
+                LazyVStack(spacing: 4) {
+                    ForEach(features) { feature in
+                        FeatureListRow(
+                            feature: feature,
+                            store: model.featureStore,
+                            isSelected: feature.name == selectedFeature?.name,
+                            action: { model.selectFeature(feature.name) }
+                        )
+                    }
+                }
+                .padding(8)
+            }
+            .id(title)
+            .transition(.opacity)
+        }
+        .frame(maxHeight: .infinity)
+        .liquidGlass(cornerRadius: AppTheme.cardRadius)
+        .animation(transitionAnimation, value: title)
+        .accessibilityIdentifier("feature-master-list")
+    }
+
+    private var detail: some View {
+        Group {
+            if let selectedFeature {
+                FeatureDetailContainer(model: model, feature: selectedFeature)
+                    .id(selectedFeature.name)
+                    .transition(.opacity)
+            } else {
+                CardContainer {
                     ContentUnavailableView(
                         "选择一项功能",
                         systemImage: "slider.horizontal.3",
                         description: Text("从左侧列表选择要查看和调整的显示器设置")
                     )
-                    .transition(.opacity)
+                    .frame(maxWidth: .infinity, minHeight: 220)
                 }
+                .padding(AppTheme.pagePadding)
+                .frame(maxWidth: 760)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.opacity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .animation(transitionAnimation, value: selectedFeature?.name)
         }
-        .padding(20)
-        .onAppear(perform: synchronizeSelection)
-        .onChange(of: features) { _, _ in synchronizeSelection() }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .liquidGlass(cornerRadius: AppTheme.cardRadius)
+        .clipShape(.rect(cornerRadius: AppTheme.cardRadius))
+        .animation(transitionAnimation, value: selectedFeature?.name)
+        .accessibilityIdentifier("feature-detail-surface")
     }
 
     private func synchronizeSelection() {
@@ -105,6 +143,16 @@ private struct FeatureListRow: View {
     @ObservedObject var store: FeatureStateStore
     let isSelected: Bool
     let action: () -> Void
+
+    private var stateDescription: String {
+        switch store.state(for: feature) {
+        case .idle: "未读取"
+        case .loading: "正在读取"
+        case .unsupported: "不支持"
+        case .ready(let value): "当前值 \(value.displayText(for: feature))"
+        case .failed: "读取失败"
+        }
+    }
 
     var body: some View {
         Button(action: action) {
@@ -132,7 +180,7 @@ private struct FeatureListRow: View {
                     Color.clear
                         .liquidGlass(
                             cornerRadius: AppTheme.rowRadius,
-                            tint: Color.accentColor.opacity(0.18),
+                            tint: AppTheme.selectionTint,
                             interactive: true
                         )
                 }
@@ -140,7 +188,10 @@ private struct FeatureListRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(feature.title))
+        .accessibilityValue(Text(stateDescription))
         .accessibilityHint(Text("在右侧调整设置"))
+        .help("\(feature.title)：\(stateDescription)")
+        .accessibilityIdentifier("feature-row-\(feature.name)")
     }
 }
 

@@ -31,6 +31,6 @@ struct FeatureDetailView: View {
             .frame(maxWidth: 760, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
-        .scrollContentBackground(.visible)
+        .scrollContentBackground(.hidden)
     }
 }

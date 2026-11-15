@@ -24,11 +24,13 @@ struct AboutView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: 3) {
-                Image(systemName: "display")
-                Text("由")
-                Link("agon-ctl", destination: URL(string: "https://github.com/CyberKoo/agon-ctl")!)
-                    .foregroundStyle(.tint)
+            VStack(spacing: 6) {
+                HStack(spacing: 3) {
+                    Image(systemName: "display")
+                    Text("由")
+                    Link("agon-ctl", destination: URL(string: "https://github.com/CyberKoo/agon-ctl")!)
+                        .foregroundStyle(.tint)
+                }
                 Text("提供 DDC/CI 通信支持")
             }
             .font(.caption)

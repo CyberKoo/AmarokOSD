@@ -10,7 +10,8 @@ struct LiquidGlassModifier: ViewModifier {
     func body(content: Content) -> some View {
         if reduceTransparency {
             content
-                .background(reducedTransparencyBackground, in: shape)
+                .background(AppTheme.cardBackground, in: shape)
+                .background(tint ?? .clear, in: shape)
         } else if #available(macOS 26.0, *) {
             content
                 .glassEffect(glass, in: shape)
@@ -22,10 +23,6 @@ struct LiquidGlassModifier: ViewModifier {
 
     private var shape: RoundedRectangle {
         RoundedRectangle(cornerRadius: cornerRadius)
-    }
-
-    private var reducedTransparencyBackground: AnyShapeStyle {
-        tint.map { AnyShapeStyle($0) } ?? AnyShapeStyle(AppTheme.cardBackground)
     }
 
     private var fallbackBackground: AnyShapeStyle {

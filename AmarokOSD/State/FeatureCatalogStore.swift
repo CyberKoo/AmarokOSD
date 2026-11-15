@@ -46,4 +46,17 @@ final class FeatureCatalogStore: ObservableObject {
     func filteredFeatures(in category: FeatureCategory) -> [AgonFeature] {
         filteredFeatures.filter { $0.category == category }
     }
+
+    func selectCategory(_ category: FeatureCategory) {
+        selectedCategory = category
+        searchText = ""
+        guard selectedFeature?.category != category else { return }
+        selectedName = features.first { $0.category == category }?.name
+    }
+
+    func updateSearchText(_ text: String) {
+        searchText = text
+        guard !hasSearchQuery, let selectedFeature else { return }
+        selectedCategory = selectedFeature.category
+    }
 }

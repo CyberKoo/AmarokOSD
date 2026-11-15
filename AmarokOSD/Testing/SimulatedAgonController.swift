@@ -1,6 +1,25 @@
 #if DEBUG
 import Foundation
 
+enum SimulatedAgonScenario: Sendable {
+    case standard
+    case noDisplays
+    case noSupportedFeatures
+    case readFailure
+    case probeFailure
+    case slowProbing
+
+    static var current: Self {
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-SimulatedNoDisplays") { return .noDisplays }
+        if arguments.contains("-SimulatedNoSupportedFeatures") { return .noSupportedFeatures }
+        if arguments.contains("-SimulatedReadFailure") { return .readFailure }
+        if arguments.contains("-SimulatedProbeFailure") { return .probeFailure }
+        if arguments.contains("-SimulatedSlowProbing") { return .slowProbing }
+        return .standard
+    }
+}
+
 actor SimulatedAgonController: AgonControlling {
     private let displays = [
         AgonDisplay(
@@ -14,8 +33,10 @@ actor SimulatedAgonController: AgonControlling {
     ]
     private let featureDefinitions: [String: AgonFeature]
     private var values: [String: AgonValue]
+    private let scenario: SimulatedAgonScenario
 
-    init(features: [AgonFeature]) {
+    init(features: [AgonFeature], scenario: SimulatedAgonScenario = .current) {
+        self.scenario = scenario
         featureDefinitions = Dictionary(uniqueKeysWithValues: features.map { ($0.name, $0) })
         values = SimulatedValueFactory.makeValues(for: features)
     }
@@ -23,11 +44,17 @@ actor SimulatedAgonController: AgonControlling {
     nonisolated func invalidateDisplayConnections() {}
 
     func refresh() async throws -> [AgonDisplay] {
-        displays
+        if scenario == .slowProbing {
+            try await Task.sleep(for: .milliseconds(2_000))
+        }
+        return scenario == .noDisplays ? [] : displays
     }
 
     func read(displayID: String, feature: String) async throws -> AgonValue {
-        try value(displayID: displayID, feature: feature)
+        if scenario == .readFailure {
+            throw AgonError(kind: .transport, message: "仿真读取失败")
+        }
+        return try value(displayID: displayID, feature: feature)
     }
 
     func set(displayID: String, feature: String, value: UInt16) async throws -> AgonValue {
@@ -46,7 +73,16 @@ actor SimulatedAgonController: AgonControlling {
     }
 
     func probe(displayID: String, feature: String) async throws -> AgonProbe {
-        AgonProbe(isSupported: true, value: try value(displayID: displayID, feature: feature))
+        if scenario == .noSupportedFeatures {
+            return AgonProbe(isSupported: false, value: nil)
+        }
+        if scenario == .probeFailure && feature == "brightness" {
+            throw AgonError(kind: .transport, message: "仿真探测失败")
+        }
+        if scenario == .slowProbing {
+            try await Task.sleep(for: .milliseconds(250))
+        }
+        return AgonProbe(isSupported: true, value: try value(displayID: displayID, feature: feature))
     }
 
     private func value(displayID: String, feature: String) throws -> AgonValue {

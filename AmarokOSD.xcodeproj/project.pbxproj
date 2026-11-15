@@ -6,17 +6,52 @@
 	objectVersion = 70;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		A20000000000000000000009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1000000000000000000000C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000008;
+			remoteInfo = AmarokOSD;
+		};
+		A30000000000000000000009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1000000000000000000000C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000008;
+			remoteInfo = AmarokOSD;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		A10000000000000000000001 /* AmarokOSD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AmarokOSD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000002 /* build-agon-ffi.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-agon-ffi.sh"; sourceTree = "<group>"; };
+		A20000000000000000000001 /* AmarokOSDTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AmarokOSDTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30000000000000000000001 /* AmarokOSDUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AmarokOSDUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A10000000000000000000003 /* AmarokOSD */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AmarokOSD; sourceTree = "<group>"; };
+		A20000000000000000000002 /* AmarokOSDTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AmarokOSDTests; sourceTree = "<group>"; };
+		A30000000000000000000002 /* AmarokOSDUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AmarokOSDUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A10000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A20000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A30000000000000000000003 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -30,6 +65,8 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000003 /* AmarokOSD */,
+				A20000000000000000000002 /* AmarokOSDTests */,
+				A30000000000000000000002 /* AmarokOSDUITests */,
 				A10000000000000000000006 /* Scripts */,
 				A10000000000000000000007 /* Products */,
 			);
@@ -47,6 +84,8 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000001 /* AmarokOSD.app */,
+				A20000000000000000000001 /* AmarokOSDTests.xctest */,
+				A30000000000000000000001 /* AmarokOSDUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -77,6 +116,50 @@
 			productReference = A10000000000000000000001 /* AmarokOSD.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A20000000000000000000005 /* AmarokOSDTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A20000000000000000000006 /* Build configuration list for PBXNativeTarget "AmarokOSDTests" */;
+			buildPhases = (
+				A20000000000000000000004 /* Sources */,
+				A20000000000000000000003 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A2000000000000000000000A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A20000000000000000000002 /* AmarokOSDTests */,
+			);
+			name = AmarokOSDTests;
+			packageProductDependencies = (
+			);
+			productName = AmarokOSDTests;
+			productReference = A20000000000000000000001 /* AmarokOSDTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A30000000000000000000005 /* AmarokOSDUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A30000000000000000000006 /* Build configuration list for PBXNativeTarget "AmarokOSDUITests" */;
+			buildPhases = (
+				A30000000000000000000004 /* Sources */,
+				A30000000000000000000003 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A3000000000000000000000A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A30000000000000000000002 /* AmarokOSDUITests */,
+			);
+			name = AmarokOSDUITests;
+			packageProductDependencies = (
+			);
+			productName = AmarokOSDUITests;
+			productReference = A30000000000000000000001 /* AmarokOSDUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -89,6 +172,14 @@
 				TargetAttributes = {
 					A10000000000000000000008 = {
 						CreatedOnToolsVersion = 27.2;
+					};
+					A20000000000000000000005 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = A10000000000000000000008;
+					};
+					A30000000000000000000005 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = A10000000000000000000008;
 					};
 				};
 			};
@@ -108,6 +199,8 @@
 			projectRoot = "";
 			targets = (
 				A10000000000000000000008 /* AmarokOSD */,
+				A20000000000000000000005 /* AmarokOSDTests */,
+				A30000000000000000000005 /* AmarokOSDUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -152,7 +245,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A20000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A30000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A2000000000000000000000A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000008 /* AmarokOSD */;
+			targetProxy = A20000000000000000000009 /* PBXContainerItemProxy */;
+		};
+		A3000000000000000000000A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000008 /* AmarokOSD */;
+			targetProxy = A30000000000000000000009 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1000000000000000000000E /* Debug */ = {
@@ -280,6 +400,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -324,6 +445,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -362,6 +484,100 @@
 			};
 			name = Release;
 		};
+		A20000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.amarok-osd.AmarokOSDTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AmarokOSD.app/Contents/MacOS/AmarokOSD";
+			};
+			name = Debug;
+		};
+		A20000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.amarok-osd.AmarokOSDTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AmarokOSD.app/Contents/MacOS/AmarokOSD";
+			};
+			name = Release;
+		};
+		A30000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.amarok-osd.AmarokOSDUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = AmarokOSD;
+			};
+			name = Debug;
+		};
+		A30000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.amarok-osd.AmarokOSDUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = AmarokOSD;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -379,6 +595,24 @@
 			buildConfigurations = (
 				A1000000000000000000000E /* Debug */,
 				A1000000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A20000000000000000000006 /* Build configuration list for PBXNativeTarget "AmarokOSDTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A20000000000000000000007 /* Debug */,
+				A20000000000000000000008 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A30000000000000000000006 /* Build configuration list for PBXNativeTarget "AmarokOSDUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A30000000000000000000007 /* Debug */,
+				A30000000000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -115,6 +115,7 @@ final class FeatureStateStore: ObservableObject {
 
     func visibleFeatures(from features: [AgonFeature]) -> [AgonFeature] {
         features.filter {
+            if case .failed = state(for: $0) { return true }
             guard case .ready(let value) = state(for: $0) else { return false }
             return $0.hasAdjustableValues(for: value)
         }

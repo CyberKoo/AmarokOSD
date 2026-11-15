@@ -8,7 +8,7 @@ struct WriteProgress: View {
             HStack(spacing: 8) {
                 ProgressView()
                     .controlSize(.small)
-                Text("正在写入并回读…")
+                Text("正在应用并验证…")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

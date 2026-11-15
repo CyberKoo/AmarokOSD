@@ -19,5 +19,6 @@ struct ProbeProgress: View {
         }
         .padding(13)
         .liquidGlass(cornerRadius: 16)
+        .accessibilityIdentifier("probe-progress")
     }
 }

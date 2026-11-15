@@ -8,6 +8,9 @@ enum AppTheme {
     static let rowRadius: Double = 13
     static let pageBackground = Color(nsColor: .underPageBackgroundColor)
     static let cardBackground = Color(nsColor: .controlBackgroundColor)
+    static let detailBackground = Color(nsColor: .textBackgroundColor)
+    static let selectionTint = Color.accentColor.opacity(0.16)
+    static let subtleSelectionTint = Color.accentColor.opacity(0.12)
     static let accentGradient = LinearGradient(
         colors: [Color(red: 0.32, green: 0.86, blue: 0.76), Color(red: 0.25, green: 0.52, blue: 0.94)],
         startPoint: .topLeading,

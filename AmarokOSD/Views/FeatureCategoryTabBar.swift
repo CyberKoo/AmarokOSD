@@ -3,6 +3,7 @@ import SwiftUI
 struct FeatureCategoryTabBar: View {
     let categories: [FeatureCategory]
     @Binding var selection: FeatureCategory
+    let onSelect: (FeatureCategory) -> Void
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -12,7 +13,7 @@ struct FeatureCategoryTabBar: View {
     }
 
     private var buttons: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: FeatureWorkspaceHeaderLayout.tabSpacing) {
             ForEach(categories) { category in
                 categoryButton(for: category)
             }
@@ -26,29 +27,36 @@ struct FeatureCategoryTabBar: View {
         }
         .font(.callout)
         .foregroundStyle(selection == category ? Color.primary : .secondary)
-        .padding(.horizontal, 12)
+        .padding(.horizontal, FeatureWorkspaceHeaderLayout.categoryHorizontalInset)
         .padding(.vertical, 8)
         .contentShape(.rect(cornerRadius: 12))
         .buttonStyle(.plain)
         .accessibilityAddTraits(selection == category ? .isSelected : [])
+        .accessibilityIdentifier("category-\(category.rawValue)")
 
-        if #available(macOS 26.0, *), selection == category, !reduceTransparency {
-            button
-                .glassEffect(
-                    .regular.tint(Color.accentColor.opacity(0.10)).interactive(),
-                    in: .rect(cornerRadius: 12)
-                )
-        } else {
-            button
-                .background(
-                    selection == category ? Color.accentColor.opacity(0.13) : .clear,
-                    in: .rect(cornerRadius: 12)
-                )
+        Group {
+            if #available(macOS 26.0, *), selection == category, !reduceTransparency {
+                button
+                    .glassEffect(
+                        .regular.tint(AppTheme.subtleSelectionTint).interactive(),
+                        in: .rect(cornerRadius: 12)
+                    )
+            } else {
+                button
+                    .background(
+                        selection == category ? AppTheme.cardBackground : .clear,
+                        in: .rect(cornerRadius: 12)
+                    )
+                    .background(
+                        selection == category ? AppTheme.subtleSelectionTint : .clear,
+                        in: .rect(cornerRadius: 12)
+                    )
+            }
         }
     }
 
     private func select(_ category: FeatureCategory) {
-        guard selection != category else { return }
         selection = category
+        onSelect(category)
     }
 }

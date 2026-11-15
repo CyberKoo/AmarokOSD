@@ -22,10 +22,13 @@ struct FeatureHeader: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .textSelection(.enabled)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             }
+            .layoutPriority(1)
             Spacer(minLength: 12)
             Button(action: onRead) {
-                if state == .loading || isReading {
+                if isReading {
                     ProgressView()
                         .controlSize(.small)
                         .frame(minWidth: 72)
@@ -36,6 +39,8 @@ struct FeatureHeader: View {
             .liquidGlassButtonStyle()
             .controlSize(.large)
             .disabled(state == .loading || isWriting || isReading)
+            .fixedSize()
+            .accessibilityIdentifier("feature-read")
         }
     }
 }

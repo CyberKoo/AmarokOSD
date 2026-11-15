@@ -15,6 +15,7 @@ struct DisplayDiscoveryStatus: View {
             .frame(maxWidth: .infinity)
             .padding(10)
             .liquidGlass(cornerRadius: 22, fallback: AnyShapeStyle(.quaternary))
+            .accessibilityIdentifier("display-discovery-status")
         }
     }
 }

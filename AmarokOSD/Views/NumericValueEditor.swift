@@ -20,14 +20,17 @@ struct NumericValueEditor: View {
             HStack(spacing: 14) {
                 NumericStepButton(title: "减小数值", systemName: "minus", action: decrement)
                     .disabled(isWriting || value <= 0)
+                    .accessibilityIdentifier("feature-decrement")
                 Slider(value: $value, in: 0...Double(max(maximum, 1)))
                     .tint(.accentColor)
                     .disabled(maximum == 0 || isWriting)
+                    .accessibilityIdentifier("feature-value-slider")
                     .onChange(of: value) { _, newValue in
                         value = newValue.rounded()
                     }
                 NumericStepButton(title: "增大数值", systemName: "plus", action: increment)
                     .disabled(isWriting || value >= Double(maximum))
+                    .accessibilityIdentifier("feature-increment")
             }
         }
     }

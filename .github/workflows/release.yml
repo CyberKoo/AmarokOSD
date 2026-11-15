@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: xcode-27
+    timeout-minutes: 20
+
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Build the release app
+        run: |
+          xcodebuild \
+            -project AmarokOSD.xcodeproj \
+            -scheme AmarokOSD \
+            -configuration Release \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            -destination 'platform=macOS,arch=arm64' \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_IDENTITY="-" \
+            build
+
+      - name: Verify and package the app
+        run: |
+          app="$RUNNER_TEMP/DerivedData/Build/Products/Release/AmarokOSD.app"
+          codesign --verify --deep --strict "$app"
+          ditto -c -k --sequesterRsrc --keepParent "$app" "$RUNNER_TEMP/AmarokOSD-$GITHUB_REF_NAME.zip"
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@v3.0.4
+        with:
+          name: AmarokOSD ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: ${{ runner.temp }}/AmarokOSD-${{ github.ref_name }}.zip

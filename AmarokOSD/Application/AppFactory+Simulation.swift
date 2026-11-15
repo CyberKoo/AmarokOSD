@@ -1,5 +1,5 @@
 #if DEBUG
-import Foundation
+import SwiftUI
 
 @MainActor
 extension AppFactory {
@@ -7,13 +7,23 @@ extension AppFactory {
         ProcessInfo.processInfo.arguments.contains("-SimulatedUI")
     }
 
-    static func makeSimulated() -> AppModel {
+    static var isReduceTransparencyRequested: Bool {
+        ProcessInfo.processInfo.arguments.contains("-SimulatedReduceTransparency")
+    }
+
+    static var simulatedColorScheme: ColorScheme? {
+        if ProcessInfo.processInfo.arguments.contains("-SimulatedDarkAppearance") { return .dark }
+        if ProcessInfo.processInfo.arguments.contains("-SimulatedLightAppearance") { return .light }
+        return nil
+    }
+
+    static func makeSimulated(scenario: SimulatedAgonScenario = .current) -> AppModel {
         let features = SimulatedValueFactory.makeFeatures()
         return AppModel(
-            client: SimulatedAgonController(features: features),
+            client: SimulatedAgonController(features: features, scenario: scenario),
             features: features,
             initializationError: nil,
-            makeClient: { SimulatedAgonController(features: features) }
+            makeClient: { SimulatedAgonController(features: features, scenario: scenario) }
         )
     }
 }

@@ -7,7 +7,7 @@ struct AmarokOSDApp: App {
     var body: some Scene {
         WindowGroup("AmarokOSD") {
             RootView(model: model)
-                .frame(minWidth: 960, minHeight: 640)
+                .frame(minWidth: 800, minHeight: 600)
         }
         .windowToolbarStyle(.unified)
         .commands {
