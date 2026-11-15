@@ -1,0 +1,3 @@
+[submodule "Vendor/agon-ctl"]
+	path = Vendor/agon-ctl
+	url = https://github.com/CyberKoo/agon-ctl.git

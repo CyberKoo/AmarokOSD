@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Xcode
+DerivedData/
+build/
+Build/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+*.hmap
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Rust / agon-ctl
+Vendor/agon-ctl/target/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.temp
