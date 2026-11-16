@@ -2,7 +2,15 @@ name: Tests
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'Documentation/**'
+      - 'LICENSE'
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'Documentation/**'
+      - 'LICENSE'
   workflow_dispatch:
 
 concurrency:

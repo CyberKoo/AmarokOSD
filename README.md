@@ -1,6 +1,25 @@
-# AmarokOSD
+<div align="center">
+  <img src="Documentation/Images/app-icon.png" width="112" alt="AmarokOSD 图标">
+  <h1>AmarokOSD</h1>
+</div>
 
 AmarokOSD 是一款 macOS 应用程序，用于读取和调整 AOC／AGON 显示器的 OSD（屏幕显示菜单）设置。
+
+## 界面预览
+
+以下截图使用 `-SimulatedUI` 启动参数和模拟显示器数据生成。
+
+**主界面：显示器列表、分类功能和亮度控制**
+
+![AmarokOSD 主界面](Documentation/Images/main-window.png)
+
+**功能搜索：查找 Gamma 并选择参数值**
+
+![Gamma 功能搜索结果](Documentation/Images/feature-search.png)
+
+**窄窗口布局：功能列表与设置详情上下排列**
+
+![窄窗口响应式布局](Documentation/Images/compact-window.png)
 
 ## 适用范围
 
