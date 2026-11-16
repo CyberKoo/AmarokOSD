@@ -6,12 +6,16 @@ struct NumericStepButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(title, systemImage: systemName, action: action)
-            .labelStyle(.iconOnly)
+        Button(action: action) {
+            ZStack {
+                Image(systemName: "plus")
+                    .hidden()
+                Image(systemName: systemName)
+            }
             .font(.headline)
-            .liquidGlassButtonStyle()
-            .controlSize(.large)
-            .frame(width: 40, height: 40)
-            .accessibilityLabel(Text(title))
+        }
+        .liquidGlassButtonStyle()
+        .controlSize(.large)
+        .accessibilityLabel(Text(title))
     }
 }

@@ -8,12 +8,22 @@ import SwiftUI
 /// item disappear into the titlebar overflow menu. The layout therefore has
 /// to be resolved from the measured width before the view is built.
 struct FeatureWorkspaceHeaderLayout: Equatable {
-    /// Spacing between category buttons, mirroring `FeatureCategoryTabBar`.
+    /// Spacing between category content areas, included in each segment.
     static let tabSpacing = 5.0
-    /// Horizontal padding on each side of a category button.
+    /// Base horizontal padding on each side of a category button.
     static let categoryHorizontalInset = 12.0
-    /// Horizontal padding around the category strip (4 on each side).
+    /// Additional horizontal width around the category strip (4 on each side).
     static let tabStripPadding = 8.0
+    static let tabStripHeight = 40.0
+
+    static func categoryLeadingInset(isFirst: Bool) -> Double {
+        categoryHorizontalInset + (isFirst ? tabStripPadding / 2 : tabSpacing / 2)
+    }
+
+    static func categoryTrailingInset(isLast: Bool) -> Double {
+        categoryHorizontalInset + (isLast ? tabStripPadding / 2 : tabSpacing / 2)
+    }
+
     /// The "…" button plus the spacing that separates it from the tabs.
     static let overflowMenuWidth = 40.0
     /// Width of the "…" button itself.
@@ -198,12 +208,11 @@ struct FeatureWorkspaceHeader: View {
                 onSelect: selectCategory
             )
             .fixedSize(horizontal: true, vertical: false)
-            .padding(4)
             if !hiddenCategories.isEmpty {
                 moreMenu(categories: hiddenCategories)
             }
         }
-        .frame(height: 40)
+        .frame(height: FeatureWorkspaceHeaderLayout.tabStripHeight)
         .clipShape(Capsule())
         .liquidGlass(cornerRadius: 20, fallback: AnyShapeStyle(.quaternary.opacity(0.5)))
     }

@@ -141,4 +141,30 @@ final class FeatureWorkspaceHeaderLayoutTests: XCTestCase {
         XCTAssertEqual(resolve(allTabsWidth).visibleCount, categories.count)
         XCTAssertLessThan(resolve(allTabsWidth - 1).visibleCount, categories.count)
     }
+
+    func testSegmentInsetsPreserveOriginalStripWidthAndTextPositions() {
+        var segmentWidth = 0.0
+
+        for (index, category) in categories.enumerated() {
+            let isFirst = index == 0
+            let isLast = index == categories.count - 1
+            let leading = FeatureWorkspaceHeaderLayout.categoryLeadingInset(isFirst: isFirst)
+            let trailing = FeatureWorkspaceHeaderLayout.categoryTrailingInset(isLast: isLast)
+            let textWidth = (widths[category] ?? 88) - FeatureWorkspaceHeaderLayout.categoryHorizontalInset * 2
+            let originalTextOrigin = categories.prefix(index).reduce(0.0) { $0 + (widths[$1] ?? 88) }
+                + FeatureWorkspaceHeaderLayout.tabSpacing * Double(index)
+                + FeatureWorkspaceHeaderLayout.tabStripPadding / 2
+                + FeatureWorkspaceHeaderLayout.categoryHorizontalInset
+
+            XCTAssertEqual(segmentWidth + leading, originalTextOrigin)
+            segmentWidth += leading + textWidth + trailing
+        }
+
+        XCTAssertEqual(
+            segmentWidth,
+            headerWidth(visibleCount: categories.count, showsSearchField: false)
+                - FeatureWorkspaceHeaderLayout.contentSpacing
+                - FeatureWorkspaceHeaderLayout.searchButtonWidth
+        )
+    }
 }
