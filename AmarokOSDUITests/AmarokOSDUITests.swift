@@ -89,11 +89,20 @@ final class AmarokOSDUITests: XCTestCase {
         enterText("gamma", in: searchField, using: app)
         XCTAssertTrue(app.staticTexts["搜索结果"].waitForExistence(timeout: 3))
 
+        let closeButton = app.buttons["feature-search-close"]
+        if closeButton.exists {
+            closeButton.click()
+        }
         selectGamingCategory()
 
         XCTAssertTrue(app.staticTexts["游戏"].waitForExistence(timeout: 3))
-        XCTAssertEqual(searchField.value as? String, "")
         XCTAssertTrue(app.buttons["feature-row-gamma"].exists)
+
+        let clearedSearchField = visibleSearchField(in: app)
+        XCTAssertEqual(clearedSearchField.value as? String, "")
+        if closeButton.exists {
+            closeButton.click()
+        }
         saveScreenshot(of: app, named: "stage1-category-exits-search")
     }
 

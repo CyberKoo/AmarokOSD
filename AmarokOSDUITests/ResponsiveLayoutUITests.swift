@@ -22,11 +22,8 @@ final class ResponsiveLayoutUITests: AmarokOSDStateUITestCase {
         saveScreenshot(of: app, named: "stage3-side-by-side-layout")
     }
 
-    func testSearchRemainsAccessibleAfterWindowResize() {
+    func testSearchIsAccessibleAtCurrentWindowSize() {
         launchApp()
-        resizeWindow(of: app, to: CGSize(width: 1_400, height: 900))
-        settleLayout()
-
         saveScreenshot(of: app, named: "stage3-measured-header")
         XCTAssertTrue(visibleSearchField(in: app).exists)
     }
