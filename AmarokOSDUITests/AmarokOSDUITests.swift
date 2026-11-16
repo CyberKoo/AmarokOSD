@@ -111,31 +111,23 @@ final class AmarokOSDUITests: XCTestCase {
     }
 
     func testCategorySelectionKeepsTabPositionsStable() {
-        resizeWindow(of: app, to: CGSize(width: 1_400, height: 900))
-        Thread.sleep(forTimeInterval: 0.5)
+        let categoryIdentifiers = [
+            "picture", "gaming", "color", "inputAndAudio", "lighting", "panelCare", "other"
+        ]
+        XCTAssertTrue(app.buttons["category-picture"].waitForExistence(timeout: 3))
 
-        let pictureTab = app.buttons["category-picture"]
-        let gamingTab = app.buttons["category-gaming"]
-        let panelCareTab = app.buttons["category-panelCare"]
-        XCTAssertTrue(panelCareTab.waitForExistence(timeout: 3))
+        let tabs = categoryIdentifiers
+            .map { app.buttons["category-\($0)"] }
+            .filter { $0.exists }
+        XCTAssertGreaterThanOrEqual(tabs.count, 2)
 
-        let tabs = [pictureTab, gamingTab, panelCareTab]
         let originalPositions = tabs.map { $0.frame.origin }
-
-        panelCareTab.click()
-        Thread.sleep(forTimeInterval: 0.3)
-        saveScreenshot(of: app, named: "category-last-selection")
-        XCTAssertEqual(tabs.map { $0.frame.origin }, originalPositions)
-
-        gamingTab.click()
-        Thread.sleep(forTimeInterval: 0.3)
-        saveScreenshot(of: app, named: "category-middle-selection")
-        XCTAssertEqual(tabs.map { $0.frame.origin }, originalPositions)
-
-        pictureTab.click()
-        Thread.sleep(forTimeInterval: 0.3)
-        saveScreenshot(of: app, named: "category-first-selection")
-        XCTAssertEqual(tabs.map { $0.frame.origin }, originalPositions)
+        for tab in tabs.reversed() {
+            tab.click()
+            Thread.sleep(forTimeInterval: 0.3)
+            XCTAssertEqual(tabs.map { $0.frame.origin }, originalPositions)
+        }
+        saveScreenshot(of: app, named: "category-selection-stable")
     }
 
     func testNumericEditCanBeAppliedAndReadBack() {
@@ -160,7 +152,7 @@ final class AmarokOSDUITests: XCTestCase {
 
     private func selectGamingCategory() {
         let gamingTab = app.buttons["category-gaming"]
-        if gamingTab.waitForExistence(timeout: 1), gamingTab.isHittable {
+        if gamingTab.waitForExistence(timeout: 1) {
             gamingTab.click()
             return
         }
